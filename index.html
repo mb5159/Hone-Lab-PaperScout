@@ -135,7 +135,11 @@
       </div>
 
       <!-- Research interests -->
-      <div class="section-title">Research interests</div>
+      <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+        Research interests
+        <a onclick="toggleAll('interests')" id="interests-toggle"
+           style="font-size:11px; font-weight:600; color:#6c63ff; cursor:pointer; text-transform:none; letter-spacing:0;">Select all</a>
+      </div>
       <p class="hint" style="margin-bottom:12px;">Select all that apply. Your selections (and everyone else's) are combined to drive the daily search.</p>
 
       <div class="checkbox-grid" id="interests-grid">
@@ -223,7 +227,11 @@
       </div><!-- /interests-grid -->
 
       <!-- PI tracking -->
-      <div class="section-title">PIs to track</div>
+      <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+        PIs to track
+        <a onclick="toggleAll('tracked_pis')" id="tracked_pis-toggle"
+           style="font-size:11px; font-weight:600; color:#6c63ff; cursor:pointer; text-transform:none; letter-spacing:0;">Select all</a>
+      </div>
       <p class="hint" style="margin-bottom:12px;">Papers by these authors get a relevance boost in the digest.</p>
 
       <div class="pi-grid" id="pi-grid">
@@ -344,28 +352,20 @@
     };
 
     fetch(APPS_SCRIPT_URL, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify(payload),
+      method: "POST",
+      mode:   "no-cors",
+      body:   new URLSearchParams({ payload: JSON.stringify(payload) }),
     })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.ok) {
-          var msg = data.action === "created"
-            ? "You're subscribed! You'll get the daily digest starting tomorrow."
-            : "Preferences updated successfully.";
-          showStatus(msg, "success");
-          unsubLink.style.display = "block";
-        } else {
-          showStatus("Error: " + (data.error || "Unknown error"), "error");
-        }
+      .then(function() {
+        showStatus("You're subscribed! You'll get the daily digest starting tomorrow.", "success");
+        unsubLink.style.display = "block";
+        submitBtn.textContent = "Update preferences";
       })
       .catch(function(err) {
         showStatus("Network error — please try again. (" + err + ")", "error");
       })
       .finally(function() {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Subscribe / Update preferences";
       });
   });
 
@@ -375,22 +375,25 @@
     if (!confirm("Unsubscribe " + email + " from PaperScout?")) return;
 
     fetch(APPS_SCRIPT_URL, {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ action: "unsubscribe", email: email }),
+      method: "POST",
+      mode:   "no-cors",
+      body:   new URLSearchParams({ payload: JSON.stringify({ action: "unsubscribe", email: email }) }),
     })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.ok) {
-          showStatus("Unsubscribed. You can re-subscribe any time.", "success");
-          unsubLink.style.display = "none";
-        } else {
-          showStatus("Error: " + (data.error || "Unknown error"), "error");
-        }
+      .then(function() {
+        showStatus("Unsubscribed. You can re-subscribe any time.", "success");
+        unsubLink.style.display = "none";
       })
       .catch(function() {
         showStatus("Network error — please try again.", "error");
       });
+  }
+
+  function toggleAll(name) {
+    var boxes   = document.querySelectorAll("input[name='" + name + "']");
+    var toggle  = document.getElementById(name + "-toggle");
+    var anyUnchecked = Array.from(boxes).some(function(cb) { return !cb.checked; });
+    boxes.forEach(function(cb) { cb.checked = anyUnchecked; });
+    toggle.textContent = anyUnchecked ? "Clear all" : "Select all";
   }
 
   function showStatus(msg, type) {
