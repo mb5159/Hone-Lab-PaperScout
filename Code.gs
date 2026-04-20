@@ -96,8 +96,7 @@ function doGet(e) {
 function doPost(e) {
   var body;
   try {
-    var raw = (e.parameter && e.parameter.payload) ? e.parameter.payload : e.postData.contents;
-    body = JSON.parse(raw);
+    body = JSON.parse(e.postData.contents);
   } catch (err) {
     return jsonResponse({ error: "Invalid JSON" });
   }

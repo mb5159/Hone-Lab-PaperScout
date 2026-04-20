@@ -352,9 +352,11 @@
     };
 
     fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      mode:   "no-cors",
-      body:   new URLSearchParams({ payload: JSON.stringify(payload) }),
+      method:   "POST",
+      mode:     "no-cors",
+      redirect: "follow",
+      headers:  { "Content-Type": "text/plain" },
+      body:     JSON.stringify(payload),
     })
       .then(function() {
         showStatus("You're subscribed! You'll get the daily digest starting tomorrow.", "success");
@@ -375,9 +377,11 @@
     if (!confirm("Unsubscribe " + email + " from PaperScout?")) return;
 
     fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      mode:   "no-cors",
-      body:   new URLSearchParams({ payload: JSON.stringify({ action: "unsubscribe", email: email }) }),
+      method:   "POST",
+      mode:     "no-cors",
+      redirect: "follow",
+      headers:  { "Content-Type": "text/plain" },
+      body:     JSON.stringify({ action: "unsubscribe", email: email }),
     })
       .then(function() {
         showStatus("Unsubscribed. You can re-subscribe any time.", "success");
