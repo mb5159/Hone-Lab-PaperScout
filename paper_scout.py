@@ -346,7 +346,8 @@ def fetch_arxiv(days_back: int, extra_queries: list[str] | None = None) -> list[
         })
         url = f"https://export.arxiv.org/api/query?{params}"
         try:
-            with urllib.request.urlopen(url, timeout=30) as resp:
+            req = urllib.request.Request(url, headers={"User-Agent": "PaperScout/3.0 (matthewbeck00@gmail.com)"})
+            with urllib.request.urlopen(req, timeout=30) as resp:
                 data = resp.read()
             papers = _parse_arxiv_entries(data)
             new = [p for p in papers if p["id"] not in seen_ids]
