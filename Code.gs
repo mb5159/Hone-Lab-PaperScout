@@ -131,6 +131,7 @@ function upsertSubscriber(data) {
   if (row === -1) {
     // New subscriber — append row
     sheet.appendRow([name, email, interests, trackedPIs, freeText, true, now, now]);
+    sendWelcomeEmail(email, name);
     return jsonResponse({ ok: true, action: "created" });
   } else {
     // Existing subscriber — update in place (preserve signup date)
@@ -160,6 +161,32 @@ function unsubscribeSubscriber(email) {
   getSheet().getRange(row, COL.ACTIVE + 1).setValue(false);
   getSheet().getRange(row, COL.UPDATED + 1).setValue(new Date().toISOString().slice(0, 10));
   return jsonResponse({ ok: true, action: "unsubscribed" });
+}
+
+// ── Welcome email ─────────────────────────────────────────────────────────────
+
+function sendWelcomeEmail(email, name) {
+  var firstName = name ? name.split(" ")[0] : "there";
+  var manageUrl = "https://mb5159.github.io/Hone-Lab-PaperScout/?email=" + encodeURIComponent(email);
+  MailApp.sendEmail({
+    to: email,
+    subject: "You're subscribed to Hone Lab PaperScout",
+    htmlBody:
+      "<div style='font-family:Georgia,serif; max-width:520px; margin:0 auto; color:#1e1b4b;'>" +
+      "<div style='background:linear-gradient(135deg,#1e1b4b,#4f46e5); padding:28px 32px; border-radius:12px 12px 0 0;'>" +
+      "<div style='font-size:11px; color:#a5b4fc; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:6px;'>Hone Lab · Columbia University</div>" +
+      "<div style='font-size:22px; font-weight:700; color:#fff;'>PaperScout</div>" +
+      "</div>" +
+      "<div style='background:#fff; padding:28px 32px; border-radius:0 0 12px 12px; border:1px solid #e0e7ff; border-top:none;'>" +
+      "<p style='font-size:16px; margin:0 0 12px;'>Hi " + firstName + ",</p>" +
+      "<p style='font-size:14px; line-height:1.6; margin:0 0 16px;'>You're subscribed to the daily Hone Lab paper digest. " +
+      "You'll get an email each morning with new papers matching the lab's interests.</p>" +
+      "<p style='font-size:14px; line-height:1.6; margin:0 0 24px;'>You can update your interests or unsubscribe anytime:</p>" +
+      "<a href='" + manageUrl + "' style='background:#4f46e5; color:#fff; padding:10px 20px; " +
+      "border-radius:8px; text-decoration:none; font-size:13px; font-weight:600;'>Manage preferences</a>" +
+      "<p style='font-size:12px; color:#94a3b8; margin-top:28px;'>Hone Lab PaperScout · Columbia University</p>" +
+      "</div></div>",
+  });
 }
 
 // ── One-time setup: write the admin key to script properties ─────────────────
