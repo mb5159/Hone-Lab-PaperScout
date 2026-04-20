@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hone Lab PaperScout — Subscribe</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Georgia', serif;
+    background: #f8f7ff;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px 80px;
+    color: #1e1b4b;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 32px rgba(108,99,255,0.10);
+    width: 100%;
+    max-width: 680px;
+    overflow: hidden;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1e1b4b 0%, #4f46e5 100%);
+    padding: 36px 40px 28px;
+  }
+  .header .eyebrow { font-size: 11px; color: #a5b4fc; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+  .header h1 { font-size: 24px; font-weight: 700; color: #fff; letter-spacing: -0.02em; }
+  .header p { font-size: 13px; color: #c7d2fe; margin-top: 6px; line-height: 1.5; }
+
+  .body { padding: 32px 40px 40px; }
+
+  .field { margin-bottom: 22px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+  input[type="text"], input[type="email"], textarea {
+    width: 100%; border: 1px solid #d1d5db; border-radius: 8px;
+    padding: 10px 14px; font-size: 14px; font-family: inherit;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  input:focus, textarea:focus { border-color: #6c63ff; box-shadow: 0 0 0 3px rgba(108,99,255,0.1); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .section-title {
+    font-size: 11px; font-weight: 700; color: #6c63ff; letter-spacing: 0.1em;
+    text-transform: uppercase; margin: 28px 0 12px;
+    padding-bottom: 6px; border-bottom: 2px solid #f0eeff;
+  }
+
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  @media (max-width: 520px) { .checkbox-grid { grid-template-columns: 1fr; } }
+
+  .checkbox-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 12px; border: 1px solid #e5e7eb; border-radius: 8px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .checkbox-item:hover { border-color: #6c63ff; background: #faf9ff; }
+  .checkbox-item input[type="checkbox"] { margin-top: 2px; accent-color: #6c63ff; flex-shrink: 0; }
+  .checkbox-item .label-text { font-size: 13px; line-height: 1.4; }
+  .checkbox-item .label-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
+
+  .pi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+  }
+  @media (max-width: 520px) { .pi-grid { grid-template-columns: 1fr 1fr; } }
+
+  .pi-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border: 1px solid #e5e7eb; border-radius: 6px;
+    cursor: pointer; transition: all 0.15s; font-size: 12px;
+  }
+  .pi-item:hover { border-color: #6c63ff; background: #faf9ff; }
+  .pi-item input[type="checkbox"] { accent-color: #6c63ff; flex-shrink: 0; }
+
+  .hint { font-size: 12px; color: #6b7280; margin-top: 4px; }
+
+  .btn {
+    width: 100%; padding: 14px; margin-top: 32px;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  #status {
+    margin-top: 16px; padding: 12px 16px; border-radius: 8px;
+    font-size: 14px; display: none;
+  }
+  #status.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  #status.error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+  .unsubscribe-link {
+    display: block; text-align: center; margin-top: 20px;
+    font-size: 12px; color: #9ca3af; text-decoration: underline; cursor: pointer;
+  }
+  .unsubscribe-link:hover { color: #ef4444; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div class="eyebrow">Hone Lab · Columbia University</div>
+    <h1>PaperScout</h1>
+    <p>Daily digest of new 2D materials papers tailored to the lab's interests.<br>
+       Sign up once — update your preferences anytime by returning with your email.</p>
+  </div>
+
+  <div class="body">
+    <form id="form">
+
+      <!-- Basic info -->
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="e.g. Matthew Beck" required>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="uni@columbia.edu" required>
+      </div>
+
+      <!-- Research interests -->
+      <div class="section-title">Research interests</div>
+      <p class="hint" style="margin-bottom:12px;">Select all that apply. Your selections (and everyone else's) are combined to drive the daily search.</p>
+
+      <div class="checkbox-grid" id="interests-grid">
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="synthesis">
+          <div>
+            <div class="label-text">Synthesis &amp; Growth</div>
+            <div class="label-sub">CVD, MBE, crystal growth, epitaxy</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="assembly">
+          <div>
+            <div class="label-text">Heterostructure Assembly</div>
+            <div class="label-sub">Dry transfer, hBN encapsulation, exfoliation methods</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="moire">
+          <div>
+            <div class="label-text">Moiré Physics &amp; Correlated States</div>
+            <div class="label-sub">Twisted bilayer, flat bands, magic-angle graphene</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="transport">
+          <div>
+            <div class="label-text">Quantum Transport</div>
+            <div class="label-sub">Quantum Hall, superconductivity, topological effects</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="tmds_optical">
+          <div>
+            <div class="label-text">TMDs &amp; Optical Properties</div>
+            <div class="label-sub">Excitons, PL, Raman, valley physics, MoS₂/WSe₂</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="optoelectronics">
+          <div>
+            <div class="label-text">Optoelectronics &amp; Photonics</div>
+            <div class="label-sub">Polaritons, bolometers, THz, LEDs, waveguides</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="nems">
+          <div>
+            <div class="label-text">NEMS &amp; Mechanical Properties</div>
+            <div class="label-sub">Graphene resonators, membranes, Young's modulus</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="devices">
+          <div>
+            <div class="label-text">Device Engineering</div>
+            <div class="label-sub">FETs, contacts, gate dielectrics, sensors</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="radiation">
+          <div>
+            <div class="label-text">Space Radiation &amp; Harsh Environments</div>
+            <div class="label-sub">Proton irradiation, TID, radiation-hard devices, LEO</div>
+          </div>
+        </label>
+
+        <label class="checkbox-item">
+          <input type="checkbox" name="interests" value="theory">
+          <div>
+            <div class="label-text">Theory &amp; Simulation</div>
+            <div class="label-sub">DFT, tight binding, ab initio, GW, many-body</div>
+          </div>
+        </label>
+
+      </div><!-- /interests-grid -->
+
+      <!-- PI tracking -->
+      <div class="section-title">PIs to track</div>
+      <p class="hint" style="margin-bottom:12px;">Papers by these authors get a relevance boost in the digest.</p>
+
+      <div class="pi-grid" id="pi-grid">
+
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Hone"> James Hone (Columbia)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Dean"> Cory Dean (Columbia)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Pasupathy"> Abhay Pasupathy (Columbia)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Basov"> Dmitri Basov (Columbia)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Eisner"> Savannah Eisner (Columbia)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Zhu"> X.-Y. Zhu (Columbia)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Jarillo-Herrero"> Jarillo-Herrero (MIT)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Kong"> Jing Kong (MIT)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Palacios"> T. Palacios (MIT)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Pop"> Eric Pop (Stanford)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Mannix"> Andrew Mannix (Stanford)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Senesky"> D. Senesky (Stanford)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Novoselov"> Novoselov (Manchester)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Geim"> Andre Geim (Manchester)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Koppens"> F. Koppens (ICFO)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Kis"> Andras Kis (EPFL)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Mak_Shan"> Mak &amp; Shan (Cornell)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Jariwala"> Deep Jariwala (UPenn)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Watanabe_Taniguchi"> Watanabe / Taniguchi (NIMS)</label>
+        <label class="pi-item"><input type="checkbox" name="tracked_pis" value="Lee_YH"> Young Hee Lee (KAIST)</label>
+
+      </div><!-- /pi-grid -->
+
+      <!-- Open-ended -->
+      <div class="section-title">Anything else?</div>
+      <div class="field">
+        <label for="free_text">Other topics, materials, or authors you'd like tracked</label>
+        <textarea id="free_text" name="free_text"
+          placeholder="e.g. gold-mediated exfoliation yield, Cory Dean alumni, ReS2, anything about hBN crystal quality..."></textarea>
+        <div class="hint">Free text — just describe it however is natural.</div>
+      </div>
+
+      <button type="submit" class="btn" id="submit-btn">Subscribe / Update preferences</button>
+      <div id="status"></div>
+
+    </form><!-- /form -->
+
+    <a class="unsubscribe-link" id="unsub-link" style="display:none;"
+       onclick="unsubscribe()">Unsubscribe from the digest</a>
+
+  </div><!-- /body -->
+</div><!-- /card -->
+
+<script>
+  // ── CONFIG: replace with your deployed Apps Script URL ───────────────────
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec";
+  // ─────────────────────────────────────────────────────────────────────────
+
+  var emailInput = document.getElementById("email");
+  var submitBtn  = document.getElementById("submit-btn");
+  var statusEl   = document.getElementById("status");
+  var unsubLink  = document.getElementById("unsub-link");
+
+  // Pre-fill email from URL param and load existing preferences
+  window.addEventListener("DOMContentLoaded", function () {
+    var params = new URLSearchParams(window.location.search);
+    var emailParam = params.get("email");
+    if (emailParam) {
+      emailInput.value = emailParam;
+      loadExistingPreferences(emailParam);
+    }
+  });
+
+  emailInput.addEventListener("blur", function () {
+    if (emailInput.value && emailInput.value.includes("@")) {
+      loadExistingPreferences(emailInput.value);
+    }
+  });
+
+  function loadExistingPreferences(email) {
+    fetch(APPS_SCRIPT_URL + "?action=lookup&email=" + encodeURIComponent(email))
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (!data.found) return;
+        document.getElementById("name").value = data.name || "";
+        document.getElementById("free_text").value = data.free_text || "";
+
+        // Check interest boxes
+        document.querySelectorAll("input[name='interests']").forEach(function(cb) {
+          cb.checked = data.interests.includes(cb.value);
+        });
+        // Check PI boxes
+        document.querySelectorAll("input[name='tracked_pis']").forEach(function(cb) {
+          cb.checked = data.tracked_pis.includes(cb.value);
+        });
+
+        submitBtn.textContent = "Update preferences";
+        unsubLink.style.display = "block";
+        showStatus("Found your existing preferences — make any changes and hit Update.", "success");
+      })
+      .catch(function() { /* silently ignore lookup errors */ });
+  }
+
+  document.getElementById("form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Saving…";
+
+    var interests = Array.from(
+      document.querySelectorAll("input[name='interests']:checked")
+    ).map(function(cb) { return cb.value; });
+
+    var trackedPIs = Array.from(
+      document.querySelectorAll("input[name='tracked_pis']:checked")
+    ).map(function(cb) { return cb.value; });
+
+    var payload = {
+      action:      "signup",
+      name:        document.getElementById("name").value.trim(),
+      email:       emailInput.value.trim(),
+      interests:   interests,
+      tracked_pis: trackedPIs,
+      free_text:   document.getElementById("free_text").value.trim(),
+    };
+
+    fetch(APPS_SCRIPT_URL, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify(payload),
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ok) {
+          var msg = data.action === "created"
+            ? "You're subscribed! You'll get the daily digest starting tomorrow."
+            : "Preferences updated successfully.";
+          showStatus(msg, "success");
+          unsubLink.style.display = "block";
+        } else {
+          showStatus("Error: " + (data.error || "Unknown error"), "error");
+        }
+      })
+      .catch(function(err) {
+        showStatus("Network error — please try again. (" + err + ")", "error");
+      })
+      .finally(function() {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Subscribe / Update preferences";
+      });
+  });
+
+  function unsubscribe() {
+    var email = emailInput.value.trim();
+    if (!email) { alert("Enter your email first."); return; }
+    if (!confirm("Unsubscribe " + email + " from PaperScout?")) return;
+
+    fetch(APPS_SCRIPT_URL, {
+      method:  "POST",
+      headers: { "Content-Type": "application/json" },
+      body:    JSON.stringify({ action: "unsubscribe", email: email }),
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ok) {
+          showStatus("Unsubscribed. You can re-subscribe any time.", "success");
+          unsubLink.style.display = "none";
+        } else {
+          showStatus("Error: " + (data.error || "Unknown error"), "error");
+        }
+      })
+      .catch(function() {
+        showStatus("Network error — please try again.", "error");
+      });
+  }
+
+  function showStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.className   = type;
+    statusEl.style.display = "block";
+    statusEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+</script>
+</body>
+</html>
