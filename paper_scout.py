@@ -436,6 +436,92 @@ SS_QUERIES = [
     "flux growth exfoliation van der Waals heterostructure device",
 ]
 
+# ─── Crossref Journal Fetch ───────────────────────────────────────────────────
+# Targets high-impact journals by ISSN. Free API, no key required.
+
+CROSSREF_JOURNALS = [
+    ("0028-0836", "Nature"),
+    ("1476-1122", "Nature Materials"),
+    ("1748-3387", "Nature Nanotechnology"),
+    ("1745-2473", "Nature Physics"),
+    ("2520-1131", "Nature Electronics"),
+    ("0036-8075", "Science"),
+    ("0031-9007", "Physical Review Letters"),
+    ("2469-9950", "Physical Review B"),
+    ("1530-6984", "Nano Letters"),
+    ("1936-0851", "ACS Nano"),
+    ("0935-9648", "Advanced Materials"),
+    ("2053-1583", "2D Materials"),
+]
+
+CROSSREF_KEYWORDS = (
+    "graphene OR \"2D material\" OR \"van der Waals\" OR \"MoS2\" OR \"WSe2\" OR "
+    "\"WS2\" OR \"MoSe2\" OR \"hBN\" OR \"hexagonal boron nitride\" OR "
+    "\"transition metal dichalcogenide\" OR \"TMD\" OR \"twisted bilayer\" OR "
+    "\"moiré\" OR \"exfoliation\" OR \"heterostructure\""
+)
+
+
+def fetch_crossref(days_back: int) -> list[dict]:
+    from_date = (datetime.date.today() - datetime.timedelta(days=days_back + 1)).strftime("%Y-%m-%d")
+    all_papers: list[dict] = []
+    seen_ids:   set[str]   = set()
+    print(f"  [Crossref] Searching {len(CROSSREF_JOURNALS)} journals (lookback={days_back}d)...")
+
+    for issn, journal_name in CROSSREF_JOURNALS:
+        url = (
+            "https://api.crossref.org/works"
+            f"?query={urllib.parse.quote(CROSSREF_KEYWORDS)}"
+            f"&filter=issn:{issn},from-pub-date:{from_date}"
+            "&rows=20&sort=relevance&select=DOI,title,author,published,abstract,container-title"
+        )
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "PaperScout/3.0 (matthewbeck00@gmail.com)"},
+            )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                data = json.loads(resp.read())
+            items = data.get("message", {}).get("items", [])
+            new_count = 0
+            for item in items:
+                doi = item.get("DOI", "")
+                if not doi or doi in seen_ids:
+                    continue
+                seen_ids.add(doi)
+                title_parts = item.get("title", [])
+                title = title_parts[0] if title_parts else ""
+                if not title:
+                    continue
+                authors = [
+                    f"{a.get('given', '')} {a.get('family', '')}".strip()
+                    for a in item.get("author", [])
+                ]
+                pub = item.get("published", {}).get("date-parts", [[""]])[0]
+                pub_date = "-".join(str(p).zfill(2) for p in pub) if pub and pub[0] else ""
+                if len(pub_date) == 4:
+                    pub_date += "-01-01"
+                elif len(pub_date) == 7:
+                    pub_date += "-01"
+                abstract = re.sub(r"<[^>]+>", "", item.get("abstract", ""))
+                all_papers.append({
+                    "id":       f"doi:{doi}",
+                    "source":   journal_name,
+                    "title":    title,
+                    "abstract": abstract,
+                    "authors":  authors,
+                    "url":      f"https://doi.org/{doi}",
+                    "published": pub_date[:10],
+                })
+                new_count += 1
+            print(f"  [Crossref] {journal_name}: +{new_count}")
+        except Exception as e:
+            print(f"  [Crossref] {journal_name} error: {e}")
+        time.sleep(0.5)  # Crossref requests polite crawling
+
+    print(f"  [Crossref] {len(all_papers)} total papers.")
+    return all_papers
+
 
 def fetch_semantic_scholar(days_back: int, skip_if_enough: int = 0) -> list[dict]:
     if skip_if_enough > 0:
@@ -848,9 +934,8 @@ def main(test_mode: bool = False, force_lookback: int | None = None) -> None:
     raw_all: list[dict] = []
     raw_all += fetch_arxiv(max_step, extra_queries=extra_queries)
     raw_all += fetch_pubmed(max_step)
-    raw_all += fetch_semantic_scholar(
-        max_step, skip_if_enough=len(raw_all) if len(raw_all) >= 30 else 0
-    )
+    raw_all += fetch_crossref(max_step)
+    raw_all += fetch_semantic_scholar(max_step)  # always run — indexes Nature/Science/PRL
 
     # 5. Deduplicate
     novel = [p for p in raw_all if p["id"] not in seen_on_disk]
