@@ -1,0 +1,38 @@
+name: Daily Magnetometer Digest
+
+on:
+  schedule:
+    # 9:15 AM UTC = 5:15 AM ET (offset from the main digest to avoid overlap)
+    - cron: '15 9 * * *'
+  workflow_dispatch:   # lets you click "Run workflow" manually in GitHub UI
+
+jobs:
+  run-digest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit seen_ids_magnetometer.json back to repo
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # No pip installs needed — magnetometer_scout.py uses stdlib only
+
+      - name: Run Magnetometer Scout
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          FROM_EMAIL:       ${{ secrets.FROM_EMAIL }}
+        run: python magnetometer_scout.py
+
+      - name: Save seen IDs back to repo
+        run: |
+          git config user.name  "Magnetometer Scout Bot"
+          git config user.email "magnetometer-scout-bot@users.noreply.github.com"
+          git add seen_ids_magnetometer.json
+          git diff --staged --quiet || git commit -m "chore: update seen_ids_magnetometer [skip ci]"
+          git push
