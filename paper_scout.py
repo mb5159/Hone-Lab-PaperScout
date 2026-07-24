@@ -852,43 +852,45 @@ def build_email_text(papers_by_source: dict, date_str: str, days_used: int,
     return "\n".join(lines)
 
 
-# ─── Send via SendGrid ────────────────────────────────────────────────────────
+# ─── Send via Apps Script (Gmail / MailApp — no external quota) ───────────────
 
-def send_sendgrid(subject: str, html: str, text: str, recipients: list[dict]) -> None:
+def send_apps_script(subject: str, html: str, text: str, recipients: list[dict]) -> None:
     """
-    Send via SendGrid v3 REST API using only stdlib (no extra pip packages).
+    Send via the Apps Script web-app endpoint using MailApp (Gmail).
     recipients: list of {"email": "...", "name": "..."}
     """
-    api_key = CONFIG["sendgrid_api_key"]
-    if not api_key:
-        raise RuntimeError("SENDGRID_API_KEY not set")
+    url = CONFIG["apps_script_url"]
+    key = CONFIG["apps_script_key"]
+    if not url or not key:
+        raise RuntimeError("APPS_SCRIPT_URL / APPS_SCRIPT_KEY not set")
 
     payload = {
-        "personalizations": [{"to": recipients}],
-        "from": {"email": CONFIG["from_email"], "name": CONFIG["from_name"]},
-        "subject": subject,
-        "content": [
-            {"type": "text/plain", "value": text},
-            {"type": "text/html",  "value": html},
-        ],
+        "action":     "send_digest",
+        "key":        key,
+        "subject":    subject,
+        "html":       html,
+        "text":       text,
+        "recipients": recipients,
     }
     data = json.dumps(payload).encode()
     req  = urllib.request.Request(
-        "https://api.sendgrid.com/v3/mail/send",
+        url,
         data=data,
-        headers={
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type":  "application/json",
-        },
+        headers={"Content-Type": "application/json"},
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            status = resp.status
-        print(f"  ✅ SendGrid: {status} — sent to {len(recipients)} recipient(s).")
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            result = json.loads(resp.read())
+        if result.get("ok"):
+            print(f"  ✅ Gmail (Apps Script): sent to {result.get('sent', '?')} recipient(s).")
+            if result.get("errors"):
+                print(f"  ⚠ Partial errors: {result['errors']}")
+        else:
+            raise RuntimeError(f"Apps Script error: {result}")
     except urllib.error.HTTPError as e:
         body = e.read().decode()
-        raise RuntimeError(f"SendGrid error {e.code}: {body}") from e
+        raise RuntimeError(f"Apps Script HTTP error {e.code}: {body}") from e
 
 
 # ─── Date helpers ─────────────────────────────────────────────────────────────
@@ -1012,7 +1014,7 @@ def main(test_mode: bool = False, force_lookback: int | None = None) -> None:
         for sub in subscribers:
             html = build_email_html(by_source, date_str, total, days_used, sub["email"])
             text = build_email_text(by_source, date_str, days_used, sub["email"])
-            send_sendgrid(subject, html, text, [{"email": sub["email"], "name": sub.get("name", "")}])
+            send_apps_script(subject, html, text, [{"email": sub["email"], "name": sub.get("name", "")}])
             time.sleep(0.5)  # gentle rate limiting
 
     # 10. Persist seen IDs

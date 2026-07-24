@@ -109,8 +109,42 @@ function doPost(e) {
   if (action === "unsubscribe") {
     return unsubscribeSubscriber(body.email || "");
   }
+  if (action === "send_digest") {
+    return sendDigest(body);
+  }
 
   return jsonResponse({ error: "Unknown action" });
+}
+
+// ── Digest email sender ───────────────────────────────────────────────────────
+
+function sendDigest(body) {
+  if (!ADMIN_KEY || body.key !== ADMIN_KEY) {
+    return jsonResponse({ error: "Unauthorized" });
+  }
+  var subject    = body.subject    || "(no subject)";
+  var htmlBody   = body.html       || "";
+  var plainBody  = body.text       || "";
+  var recipients = body.recipients || [];  // [{email, name}, ...]
+
+  var sent = 0;
+  var errors = [];
+  for (var i = 0; i < recipients.length; i++) {
+    var r = recipients[i];
+    try {
+      MailApp.sendEmail({
+        to:       r.email,
+        name:     r.name || "",
+        subject:  subject,
+        htmlBody: htmlBody,
+        body:     plainBody,
+      });
+      sent++;
+    } catch (err) {
+      errors.push({ email: r.email, error: err.toString() });
+    }
+  }
+  return jsonResponse({ ok: true, sent: sent, errors: errors });
 }
 
 // ── Signup / Update ───────────────────────────────────────────────────────────
