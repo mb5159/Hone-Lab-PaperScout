@@ -225,12 +225,22 @@ CROSSREF_JOURNALS = [
     ("0003-6951", "Applied Physics Letters"),
     ("0021-8979", "Journal of Applied Physics"),
     ("2520-1131", "Nature Electronics"),
+    # Added from the Szary et al. + aerospace-magnetometer reference sweeps
+    ("2041-1723", "Nature Communications"),
+    ("1424-8220", "Sensors"),
+    ("0169-4332", "Applied Surface Science"),
+    ("2055-7434", "Microsystems & Nanoengineering"),
+    ("1530-6984", "Nano Letters"),
+    ("0038-6308", "Space Science Reviews"),
+    ("2055-6756", "Nanoscale Horizons"),
+    ("0741-3106", "IEEE Electron Device Letters"),
 ]
 
 CROSSREF_KEYWORDS = (
     "\\\"Hall sensor\\\" OR \\\"Hall effect sensor\\\" OR \\\"magnetometer\\\" OR "
     "\\\"magnetoresistive sensor\\\" OR \\\"magnetic field sensor\\\" OR "
-    "\\\"tokamak\\\" OR \\\"fusion diagnostic\\\" OR \\\"radiation hard sensor\\\""
+    "\\\"tokamak\\\" OR \\\"fusion diagnostic\\\" OR \\\"radiation hard sensor\\\" OR "
+    "\\\"graphene Hall\\\" OR \\\"aerospace magnetometer\\\" OR \\\"radiation tolerant 2D\\\""
 )
 
 
@@ -303,6 +313,8 @@ SS_QUERIES = [
     "magnetometer radiation hard spacecraft harsh environment",
     "giant magnetoresistance sensor tokamak plasma diagnostic",
     "diamond NV center magnetometer high temperature radiation",
+    "graphene Hall sensor epitaxial SiC neutron irradiation",
+    "aerospace magnetometer radiation CubeSat review",
 ]
 
 
@@ -368,6 +380,13 @@ SENSOR_KWS = [
     "tunneling magnetoresistance", "tmr sensor", "anisotropic magnetoresistance",
     "amr sensor", "magnetic field sensor", "magnetic sensor", "spin hall sensor",
     "corbino disk", "corbino geometry", "magnetic field probe", "quantum sensor magnetic",
+    "mems magnetometer", "magnetoresistive magnetometer",
+    # From the reference-list sweep (Szary et al. + aerospace magnetometer refs)
+    "graphene hall sensor", "graphene hall-effect sensor", "graphene magnetometer",
+    "ultraclean graphene hall sensor", "epitaxial graphene hall sensor",
+    "quasi-free-standing epitaxial graphene", "hall effect current sensor",
+    "current sensing graphene", "magnetic field detection limit",
+    "offset cancellation hall sensor", "hbn encapsulated graphene hall",
 ]
 
 FUSION_KWS = [
@@ -376,6 +395,10 @@ FUSION_KWS = [
     "nuclear reactor instrumentation", "in-vessel sensor", "neutron flux monitor",
     "plasma current diagnostic", "magnetic diagnostic fusion", "divertor",
     "fusion energy", "burning plasma",
+    # From the Szary et al. reference-list sweep
+    "collision cascade", "primary knock-on atom", "neutron fluence",
+    "vacuum vessel bakeout", "plasma-facing component", "quasi-steady-state plasma",
+    "ifmif-dones", "in-vessel remote handling", "demo reactor",
 ]
 
 SPACE_KWS = [
@@ -386,6 +409,11 @@ SPACE_KWS = [
     "cubesat", "planetary magnetometer", "heliophysics", "low earth orbit",
     "space environment", "space application", "radiation-hard electronics",
     "iss experiment", "geo orbit", "space qualified",
+    # From the aerospace-magnetometer reference sweep
+    "aerospace magnetometer", "spaceborne communication",
+    "space environment adaptability", "radiation tolerant 2d material",
+    "radiation effects two-dimensional materials", "solar and space physics",
+    "magnetospheric constellation", "radcube",
 ]
 
 ENV_KWS = FUSION_KWS + SPACE_KWS + [
@@ -398,12 +426,14 @@ MATERIAL_2D_KWS = [
     "mote2", "tmd", "transition metal dichalcogenide", "hbn",
     "hexagonal boron nitride", "black phosphorus", "topological insulator",
     "bi2se3", "bi2te3", "nbse2", "monolayer", "few-layer",
+    "epitaxial graphene", "quasi-free-standing graphene", "cvd graphene",
+    "graphene-on-sic", "graphene on sic",
 ]
 
 MATERIAL_OTHER_KWS = [
     "insb", "indium antimonide", "inas", "indium arsenide", "gaas", "gallium arsenide",
     "gan", "gallium nitride", "algan", "bismuth hall", "silicon hall",
-    "compound semiconductor hall", "iii-v hall",
+    "compound semiconductor hall", "iii-v hall", "silicon carbide", "sic hall",
 ]
 
 NEGATIVE_KWS = [
@@ -419,9 +449,21 @@ HIGH_VALUE_AUTHORS = [
     "Szary", "El-Ahmar", "Prokopowicz", "Ciuk",
     # Stanford harsh-environment sensor group (Senesky/Dowling network)
     "Senesky", "Dowling K", "Dowling KM", "Alpert H", "Chapin C",
-    "Yalamarthy", "Satterthwaite", "Toor A",
-    # Columbia — GaN/2D sensors for space
-    "Eisner", "Hone", "Shepard K",
+    "Yalamarthy", "Satterthwaite", "Toor A", "Ruggeri", "Ausserlechner",
+    # Columbia — GaN/2D sensors for space, van der Waals device group
+    "Eisner", "Hone", "Shepard K", "Dean C", "Kim P", "Rhodes D",
+    "Ribeiro-Palau", "Amontree",
+    # Fusion-diagnostics Hall sensor community (IPP/CTU Prague, NCBJ, ITER)
+    "Entler", "Duran I", "Vyborny", "Kocan", "Vayakis", "Biel W",
+    "Bolshakova", "Kost Y", "Vasyliev", "Neumaier", "Jagiello", "Jagiełło",
+    "Dobrowolski A", "Ziemba M", "Reddig", "Przychodnia",
+    # Graphene Hall-effect sensor groups (fundamental + applied)
+    "Bending", "Collomb", "Schaefer BT", "Coletti", "Tyagi A", "Petit L",
+    "Dankert", "Dash SP", "Stampfer", "Dauber", "Strupinski", "Vervaeke",
+    # Radiation-tolerance-of-2D-materials theory/review
+    "Krasheninnikov", "Robinson JA", "Pearton",
+    # Aerospace/space magnetometer instrumentation
+    "Bennett JS", "Eastwood JP", "Kepko",
 ]
 
 
